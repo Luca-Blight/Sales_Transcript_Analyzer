@@ -47,7 +47,7 @@ def root():
     """
 
 
-@router.post("/analyze/")
+@router.post("/analyze")
 async def analyze_document(file: UploadFile) -> dict:
     filename = file.filename
 
@@ -84,7 +84,7 @@ async def analyze_document(file: UploadFile) -> dict:
                 insights.append(insight)
 
             summary = final_product_prompt_template.format_messages(text=insights)
-            chat = ChatOpenAI(temperature=0.0, model="gpt-3.5-turbo-16k")
+            chat = ChatOpenAI(temperature=0.0, model="gpt-4")
             # run blocking operations in a thread pool
             final_insights = await loop.run_in_executor(executor, chat, summary)
 

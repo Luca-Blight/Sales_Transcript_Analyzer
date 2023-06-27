@@ -13,12 +13,12 @@ function App() {
             alt='logo'
           />
           <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'>
-          Source Code
-        </a>
+            className='App-link'
+            href='https://github.com/Luca-Blight/zelta-challenge'
+            target='_blank'
+            rel='noopener noreferrer'>
+            Source Code
+          </a>
         </div>
       </header>
       <div className='App-body'>
