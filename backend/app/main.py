@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from backend.app.api.routes import router
+
+from uvicorn import run
 
 app = FastAPI()
+
+app.include_router(router)
 
 # CORS configuration
 origins = [
@@ -17,7 +22,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Import and include the API routes
-from app.api.routes import router
-
-app.include_router(router)
+if __name__ == "__main__":
+    run("main:app", host="0.0.0.0", port=8000, reload=True)
