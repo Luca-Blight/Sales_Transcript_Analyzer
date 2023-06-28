@@ -19,9 +19,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 router = APIRouter()
 
 
-# class Document(BaseModel):
-#     file: UploadFile = File()
-
 
 @router.get("/", response_class=HTMLResponse)
 def root():
@@ -50,24 +47,22 @@ def root():
 @router.post("/analyze")
 async def analyze_document(file: UploadFile) -> dict:
     filename = file.filename
-
+    breakpoint()
     loop = asyncio.get_event_loop()
 
     with ThreadPoolExecutor() as executor:
         if filename.endswith(".pdf"):
-            # run blocking operations in a thread pool
 
+            ### unable to extract 
             pdf_bytes = await file.read()  # read file into bytes
-
-            # write bytes to a temporary file
-            temp_pdf_file = tempfile.NamedTemporaryFile(delete=False)
+            temp_pdf_file = tempfile.NamedTemporaryFile(delete=False) # write bytes to a temporary file
             temp_pdf_file.write(pdf_bytes)
 
             extracted_text = await loop.run_in_executor(
                 executor, extract_text_from_pdf, temp_pdf_file.name
             )
+            
             temp_pdf_file.close()
-
             os.unlink(temp_pdf_file.name)
 
             chunks = await loop.run_in_executor(
@@ -78,10 +73,10 @@ async def analyze_document(file: UploadFile) -> dict:
             # run tasks in parallel
             tasks = [loop.run_in_executor(executor, chat, product_prompt_template.format_messages(text=chunk)) for chunk in chunks]
             insights = await asyncio.gather(*tasks)
-     
+
+            #append insights into final product prompt
             summary = final_product_prompt_template.format_messages(text=insights)
             chat = ChatOpenAI(temperature=0.0, model="gpt-4")
-            # run blocking operations in a thread pool
             final_insights = await loop.run_in_executor(executor, chat, summary)
 
             return final_insights

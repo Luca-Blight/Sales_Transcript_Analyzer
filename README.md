@@ -1,9 +1,8 @@
 # zelta-challenge
 
 
-## How it works 
+[Project Overview](https://www.notion.so/Zelta-AI-Challenge-59fd8050b8714b41bc055fe6784a9449?pvs=4)
 
-App allows transcript to be loaded with insights returned from the API.
 
 ## How to run the project
 
