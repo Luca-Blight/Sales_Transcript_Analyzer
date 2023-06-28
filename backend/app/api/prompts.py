@@ -6,19 +6,19 @@ For the following text, extract the following information from speaker 2 and mai
 
 
 delivery_days: How many days did it take for the product \
-to arrive? If this information is not found, output is "not found"., do not use -1
+to arrive? If this information is not found, output is "not found"., 
 
 price_value: Extract any sentences about the value or price,\
-and output them as a comma separated Python list. If this information is not found, output is "not found", do not use -1
+and output them as a comma separated Python list. If this information is not found, output is "not found"
 
 customer_negative_feedback: Extract any problems customers are facing with the current product \
-If this information is not found,  output is "not found", do not use -1
+If this information is not found,  output is "not found"
 
 feature_requests: Extract any sentences about feature requests,\
-and output them as a comma separated Python list. If this information is not found, output is "not found", do not use -1
+and output them as a comma separated Python list. If this information is not found, output is "not found"
 
 competitor_mentions: Extract any sentences about the competition\
-and output them as a comma separated Python list. If this information is not found, output is "not found", do not use -1
+and output them as a comma separated Python list. If this information is not found, output is "not found"
 
 
 Format the output as JSON with the following keys:
@@ -33,7 +33,7 @@ text: {text}
 
 
 final_prompt_string = """\
-For the following text, distill the following information from from the key attributes and maintain spacing between words , please ignore negative  or "not found" values:
+For the following text, amalgamate the values from the text into a single json output, keep the attributes provided below. please ignore "not found" values:
 
 delivery_days: How many days did it take for the product \
 to arrive? If this information is not found, output is "not found", do not use -1

@@ -1,7 +1,6 @@
 
 from langchain.text_splitter import CharacterTextSplitter
 import pdfplumber
-import math
 # from PyPDF2 import PdfReader
 
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -12,13 +11,13 @@ def extract_text_from_pdf(pdf) -> str:
     return text
 
 
-def split_into_chunks(text: str) -> list[str]:
-    chunk_size = len(text) / 2
-    chunk_overlap = math.floor(chunk_size * .05)
+def split_into_chunks(text: str, chunk_size: int=8000, chunk_overlap: int=400) -> list[str]:
+
     text_splitter = CharacterTextSplitter(
         separator="\n", chunk_size=chunk_size, chunk_overlap=chunk_overlap, length_function=len
     )
     chunks = text_splitter.split_text(text)
+    print(f'There are {len(chunks)} chunks with a chunk size of {chunk_size} and an overlap size of {chunk_overlap}')
     return chunks
 
 # def split_into_chunks(text: str, max_token_count: int=7000) -> list[str]:
