@@ -85,3 +85,11 @@
   min-height: 90vh; /* Adjust this as needed */
   background-color: #1f987a;
 }
+
+
+.attributes {
+  color: white;
+  font-size: '20px';
+  text-align: 'center';
+  font-family: 'Times New Roman';
+}

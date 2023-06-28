@@ -1,15 +1,31 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
   const [responseData, setResponseData] = useState({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingText, setProcessingText] = useState('Processing');
+
+  useEffect(() => {
+    if (isProcessing) {
+      const id = setInterval(() => {
+        setProcessingText((text) => {
+          return text.length < 15 ? text + '.' : 'Processing.';
+        });
+      }, 500);
+      return () => clearInterval(id);
+    } else {
+      setProcessingText('Processing');
+    }
+  }, [isProcessing]);
 
   const submitFile = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('file', file);
+    setIsProcessing(true);
 
     try {
       const res = await axios.post('http://localhost:8000/analyze', formData, {
@@ -17,10 +33,14 @@ const FileUpload = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(res.data.content);
-      setResponseData(res.data.content);
+      const parsedData = JSON.parse(res.data.content);
+      console.log(parsedData);
+
+      setResponseData(parsedData);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -48,19 +68,36 @@ const FileUpload = () => {
           onChange={handleFileUpload}
         />
         <button type='submit'>Submit</button>
+        {isProcessing && <p style={{ color: 'blue' }}>{processingText}</p>}
+
+        <p className='attributes'>
+          Here are the insights discovered from the transcript
+        </p>
+        {responseData.delivery_days && (
+          <p className='attributes'>
+            Delivery Days: {responseData.delivery_days}
+          </p>
+        )}
+        {responseData.price_value && (
+          <p className='attributes'>Price Value: {responseData.price_value}</p>
+        )}
+        {responseData.customer_negative_feedback && (
+          <p className='attributes'>
+            Customer Negative Feedback:{' '}
+            {responseData.customer_negative_feedback}
+          </p>
+        )}
+        {responseData.feature_requests && (
+          <p className='attributes'>
+            Feature Requests: {responseData.feature_requests}
+          </p>
+        )}
+        {responseData.competitor_mentions && (
+          <p className='attributes'>
+            Competitor Mentions: {responseData.competitor_mentions}
+          </p>
+        )}
       </form>
-      <div>
-        {responseData.delivery_days ? 
-          <p>Delivery Days: {responseData.delivery_days}</p> : null}
-        {responseData.price_value ?
-          <p>Price Value: {responseData.price_value}</p> : null}
-        {responseData.customer_negative_feedback ? 
-          <p>Customer Negative Feedback: {responseData.customer_negative_feedback}</p> : null}
-        {responseData.feature_requests ? 
-          <p>Feature Requests: {responseData.feature_requests}</p> : null}
-        {responseData.competitor_mentions ? 
-          <p>Competitor Mentions: {responseData.competitor_mentions}</p> : null}
-      </div>
     </div>
   );
 };

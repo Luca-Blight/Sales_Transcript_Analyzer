@@ -73,16 +73,12 @@ async def analyze_document(file: UploadFile) -> dict:
             chunks = await loop.run_in_executor(
                 executor, split_into_chunks, extracted_text
             )
-
-            insights = []
-
-            for chunk in chunks:
-                transcript = product_prompt_template.format_messages(text=chunk)
-                chat = ChatOpenAI(temperature=0.0, model="gpt-4")
-                # run blocking operations in a thread pool
-                insight = await loop.run_in_executor(executor, chat, transcript)
-                insights.append(insight)
-
+            chat = ChatOpenAI(temperature=0.0, model="gpt-4")
+            
+            # run tasks in parallel
+            tasks = [loop.run_in_executor(executor, chat, product_prompt_template.format_messages(text=chunk)) for chunk in chunks]
+            insights = await asyncio.gather(*tasks)
+     
             summary = final_product_prompt_template.format_messages(text=insights)
             chat = ChatOpenAI(temperature=0.0, model="gpt-4")
             # run blocking operations in a thread pool
