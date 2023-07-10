@@ -1,6 +1,8 @@
 import asyncio
 import os
 import time
+import openai
+
 from fastapi import APIRouter, UploadFile
 from fastapi.responses import HTMLResponse
 from langchain.chat_models import ChatOpenAI
@@ -9,6 +11,9 @@ from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv, find_dotenv
 from .prompts import product_prompt_template, final_product_prompt_template
 from utils.document_utils import extract_text_from_pdf, split_into_chunks
+from rich import print
+
+import guardrails as gd
 
 _ = load_dotenv(find_dotenv())
 
@@ -48,31 +53,29 @@ async def analyze_document(file: UploadFile) -> dict:
 
     with ThreadPoolExecutor() as executor:
         if filename.endswith(".pdf"):
-
             extracted_text = await loop.run_in_executor(
                 executor, extract_text_from_pdf, file.file
             )
 
+            guard = gd.Guard.from_rail('/Users/Zachary_Royals/Code/zelta-challenge/backend/app/api/sales_transcript.rail')
+            
             chunks = await loop.run_in_executor(
                 executor, split_into_chunks, extracted_text
             )
-            chat = ChatOpenAI(temperature=0.0, model="gpt-4")
-            
             # run tasks in parallel
-            start_chat_tasks = time.time()
-            tasks = [loop.run_in_executor(executor, chat, product_prompt_template.format_messages(text=chunk)) for chunk in chunks]
-            insights = await asyncio.gather(*tasks)
-            print(f'Time taken for initial chunk insights: {time.time() - start_chat_tasks} seconds')
-
-            #append insights into final product prompt
-            start_agg_insights = time.time()
-            agg_insights = final_product_prompt_template.format_messages(text=insights)
-            final_insights = await loop.run_in_executor(executor, chat, agg_insights)
-            print(f'Time taken for final insights: {time.time() - start_agg_insights} seconds')
-
+            for chunk in chunks:
+                raw_llm_output, validated_output = guard(
+                                                    openai.ChatCompletion.create,
+                                                    prompt_params={"sales_transcript": chunk},
+                                                    engine="chat-gpt4",
+                                                    max_tokens=1024,
+                                                    temperature=0.3,
+                                                    
+                                            )
+                
             execution_time = time.time() - start
             print(f'Time taken: {execution_time} seconds')
-            return final_insights
+            return validated_output
 
         elif file.endswith(".txt"):
             return "This is a text file."
