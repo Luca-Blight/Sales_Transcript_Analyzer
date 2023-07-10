@@ -46,24 +46,16 @@ def root():
 
 @router.post("/analyze")
 async def analyze_document(file: UploadFile) -> dict:
+    start = time.time()
     filename = file.filename
-    breakpoint()
     loop = asyncio.get_event_loop()
 
     with ThreadPoolExecutor() as executor:
         if filename.endswith(".pdf"):
 
-            ### unable to extract 
-            pdf_bytes = await file.read()  # read file into bytes
-            temp_pdf_file = tempfile.NamedTemporaryFile(delete=False) # write bytes to a temporary file
-            temp_pdf_file.write(pdf_bytes)
-
             extracted_text = await loop.run_in_executor(
-                executor, extract_text_from_pdf, temp_pdf_file.name
+                executor, extract_text_from_pdf, file.file
             )
-            
-            temp_pdf_file.close()
-            os.unlink(temp_pdf_file.name)
 
             chunks = await loop.run_in_executor(
                 executor, split_into_chunks, extracted_text
@@ -71,17 +63,23 @@ async def analyze_document(file: UploadFile) -> dict:
             chat = ChatOpenAI(temperature=0.0, model="gpt-4")
             
             # run tasks in parallel
+            start_chat_tasks = time.time()
             tasks = [loop.run_in_executor(executor, chat, product_prompt_template.format_messages(text=chunk)) for chunk in chunks]
             insights = await asyncio.gather(*tasks)
+            print(f'Time taken for initial chunk insights: {time.time() - start_chat_tasks} seconds')
 
             #append insights into final product prompt
-            summary = final_product_prompt_template.format_messages(text=insights)
-            chat = ChatOpenAI(temperature=0.0, model="gpt-4")
-            final_insights = await loop.run_in_executor(executor, chat, summary)
+            start_agg_insights = time.time()
+            agg_insights = final_product_prompt_template.format_messages(text=insights)
+            final_insights = await loop.run_in_executor(executor, chat, agg_insights)
+            print(f'Time taken for final insights: {time.time() - start_agg_insights} seconds')
 
+            execution_time = time.time() - start
+            print(f'Time taken: {execution_time} seconds')
             return final_insights
 
         elif file.endswith(".txt"):
             return "This is a text file."
         else:
             return "Error: This is not a PDF or text file."
+
