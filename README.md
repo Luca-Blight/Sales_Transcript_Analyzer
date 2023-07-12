@@ -1,4 +1,4 @@
-# zelta-challenge
+# Sales_Transcript_Analyzer
 
 
 [Project Overview](https://www.notion.so/Zelta-AI-Challenge-59fd8050b8714b41bc055fe6784a9449?pvs=4)
