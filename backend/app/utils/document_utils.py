@@ -11,7 +11,7 @@ def extract_text_from_pdf(pdf) -> str:
     return text
 
 
-def split_into_chunks(text: str, chunk_size: int=8000, chunk_overlap: int=400) -> list[str]:
+def split_into_chunks(text: str, chunk_size: int=6000, chunk_overlap: int=400) -> list[str]:
 
     text_splitter = CharacterTextSplitter(
         separator="\n", chunk_size=chunk_size, chunk_overlap=chunk_overlap, length_function=len

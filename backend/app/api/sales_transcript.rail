@@ -1,27 +1,29 @@
 <rail version="0.1">
 
 <output>
-    <object name="customer_feedback">
+    <object name="customer_feedback" description="customer feedback coming from speaker two">
         <string name="delivery_days" description="delivery days of the product"/>
-        <string name="price_value" description="Any sentences about the price or value"/>
-        <string name="feature_requests" description="Any sentences about features or improvements that could be added"/>
-        <list name="competitor_mentions" description="Mentions of a competitor. Each company should be classified into separate item in the list.">
-            <object>
-                <string name="name" description="Name of the company" />
-                <string name="advantages" description="Describes what strengths of the competition's company has to offer" />
-                <string name="disadvtanges" description="Describes what the competitor's company is bad at" />
-            </object>
-        </list>
+        <string name="price_value" description="Mentions about the price to value"/>
+        <string name="feature_requests" description="Features or improvements that could be added"/>
     </object>
 </output>
 
 
 <prompt>
 
-Given the following sales transcript extract the following information from speaker two, please extract a dictionary that contains the customer's feedback.
+
+Given the following document, construct a JSON that follows that correct schema.
+
 
 {{sales_transcript}}
 
+@xml_prefix_prompt  
+
+
+{{output_schema}}  
+
+
+@json_suffix_prompt
 </prompt>
 
 </rail>

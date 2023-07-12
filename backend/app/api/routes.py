@@ -63,16 +63,19 @@ async def analyze_document(file: UploadFile) -> dict:
                 executor, split_into_chunks, extracted_text
             )
             # run tasks in parallel
+            validated_outputs = []
             for chunk in chunks:
-                raw_llm_output, validated_output = guard(
+                _, validated_output = guard(
                                                     openai.ChatCompletion.create,
                                                     prompt_params={"sales_transcript": chunk},
-                                                    engine="chat-gpt4",
-                                                    max_tokens=1024,
-                                                    temperature=0.3,
+                                                    model="gpt-4",
+                                                    max_tokens=6000,
+                                                    temperature=0.0,
                                                     
                                             )
-                
+                validated_outputs.append(validated_output)
+            
+            # additional prompt to still collection of validated outputs?
             execution_time = time.time() - start
             print(f'Time taken: {execution_time} seconds')
             return validated_output
