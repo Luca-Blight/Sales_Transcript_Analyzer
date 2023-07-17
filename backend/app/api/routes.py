@@ -10,8 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv, find_dotenv
 from utils.document_utils import extract_text_from_pdf, split_into_chunks
 from rich import print
+from textblob import TextBlob
 
 import guardrails as gd
+
 
 _ = load_dotenv(find_dotenv())
 
@@ -21,7 +23,7 @@ router = APIRouter()
 
 
 @router.get("/", response_class=HTMLResponse)
-def root():
+async def root():
     return """
     <html>
         <head>
@@ -44,6 +46,17 @@ def root():
     """
 
 
+@router.get("/sentiment/{text}")
+async def get_sentiment(text):
+    blob = TextBlob(text).sentiment
+    results = {
+        "original_text": text,
+        "polarity": blob.polarity,
+        "subjectivity": blob.subjectivity,
+    }
+    return results
+
+
 @router.post("/analyze")
 async def analyze_document(file: UploadFile) -> dict:
     start = time.time()
@@ -57,7 +70,7 @@ async def analyze_document(file: UploadFile) -> dict:
             )
 
             guard = gd.Guard.from_rail(
-                "/Users/Zachary_Royals/Code/zelta-challenge/backend/app/api/sales_transcript.rail"
+                "/Users/Zachary_Royals/Code/transcript_analyzer/backend/app/api/sales_transcript.rail"
             )
 
             chunks = await loop.run_in_executor(
@@ -74,7 +87,7 @@ async def analyze_document(file: UploadFile) -> dict:
                     temperature=0.0,
                 )
                 validated_outputs.append(validated_output)
-
+            breakpoint()
             # additional prompt to still collection of validated outputs?
             execution_time = time.time() - start
             print(f"Time taken: {execution_time} seconds")
