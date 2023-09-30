@@ -2,7 +2,7 @@
 
 
 
-[Project Overview](https://www.notion.so/Zelta-AI-Challenge-59fd8050b8714b41bc055fe6784a9449?pvs=4)
+[Project Overview](https://www.notion.so/Sales-Transcript-Analyzer-59fd8050b8714b41bc055fe6784a9449)
 
 
 ## How to run the project
